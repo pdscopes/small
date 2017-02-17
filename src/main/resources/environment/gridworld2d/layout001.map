@@ -1,0 +1,16 @@
+; Floor(.)
+; Barrier(#)
+; Wall (| or -) (/ or \)
+; Gate (x)
+; One way (< or > or ^ or v)
+; Start/Goal (S/G or [a-z]/[A-Z])
+
+[3,3]
+
+>/- - -\
+>|. . .|
+>
+>|.|.|.|
+>
+>|S|G|S|
+>\- - -/
