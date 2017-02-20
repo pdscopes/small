@@ -40,6 +40,7 @@ public abstract class MdpState implements State {
 
     /**
      * Create a new MDP MdpState with the specified label.
+     *
      * @param label The label for this MDP
      */
     public MdpState(String label) {
@@ -53,8 +54,8 @@ public abstract class MdpState implements State {
      * Add a connection between this MDP MdpState and the specified state. The connection
      * will be for the given action and have the given probability.
      *
-     * @param state  The state to connect to
-     * @param action The action that should be performed
+     * @param state       The state to connect to
+     * @param action      The action that should be performed
      * @param probability The probability of the state transition
      */
     public void addConnection(MdpState state, JointAction action, double probability) {
@@ -62,8 +63,9 @@ public abstract class MdpState implements State {
         actions.add(action);
         connected.add(state);
 
-        if( probability > 0.0d )
+        if (probability > 0.0d) {
             probabilities.put(hash, probability);
+        }
     }
 
     /**
@@ -72,6 +74,7 @@ public abstract class MdpState implements State {
     public Set<MdpState> getConnected() {
         return connected;
     }
+
     /**
      * @return All actions that have had connections added
      */
@@ -82,36 +85,43 @@ public abstract class MdpState implements State {
     /**
      * Returns all the states, with given probabilities greater than zero,
      * that can be arrived in from the specified action.
+     *
      * @param action The action being performed
      * @return A Map of MDP States and the probabilities of arriving in that state
      */
     public Map<MdpState, Double> getStates(int action) {
         Map<MdpState, Double> states = new HashMap<>();
-        if( actions.contains(action) )
-            for( MdpState state: connected ) {
+        if (actions.contains(action)) {
+            for (MdpState state : connected) {
                 int    hash = Hash.pair(action, state.hashCode());
                 Double prob = probabilities.get(hash);
-                if( prob != null )
+                if (prob != null) {
                     states.put(state, prob);
+                }
             }
+        }
 
         return states;
     }
+
     /**
      * Returns all actions, with given probabilities greater than zero,
      * that can be performed to arrive in the specified state.
+     *
      * @param state The state to arrive in
      * @return A Map of actions and the probabilities of arriving in the specified state
      */
     public Map<JointAction, Double> getActions(MdpState state) {
         Map<JointAction, Double> as = new HashMap<>();
-        if( connected.contains(state) )
-            for( JointAction action: actions ) {
+        if (connected.contains(state)) {
+            for (JointAction action : actions) {
                 int    hash = Hash.pair(action.get(), state.hashCode());
                 Double prob = probabilities.get(hash);
-                if( prob != null )
+                if (prob != null) {
                     as.put(action, prob);
+                }
             }
+        }
 
         return as;
     }
@@ -122,7 +132,7 @@ public abstract class MdpState implements State {
      */
     @Override
     public void set(State s) {
-        if( s instanceof MdpState ) {
+        if (s instanceof MdpState) {
             MdpState that = (MdpState) s;
 
             this.label = that.label;
@@ -137,17 +147,16 @@ public abstract class MdpState implements State {
     }
 
 
-
     @Override
     public boolean equals(Object obj) {
-        if( obj instanceof MdpState )
-            return label.equals(((MdpState) obj).label);
-        return false;
+        return obj instanceof MdpState && label.equals(((MdpState) obj).label);
     }
+
     @Override
     public int hashCode() {
         return label.hashCode();
     }
+
     @Override
     public String toString() {
         return label;

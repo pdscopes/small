@@ -6,6 +6,12 @@ package org.madesimple.small.environment;
 public interface ContinuousState extends State {
 
     /**
+     * @param feature feature
+     * @return double
+     */
+    double tuple(int feature);
+
+    /**
      * Convert the state to an integer array.
      *
      * @return identifiable tuple

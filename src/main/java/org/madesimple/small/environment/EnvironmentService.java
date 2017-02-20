@@ -1,8 +1,5 @@
 package org.madesimple.small.environment;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -15,7 +12,7 @@ import java.util.Set;
  */
 public class EnvironmentService
 {
-    protected static Set<EnvironmentRegister> envs;
+    protected static Set<EnvironmentRegister> environmentRegisters;
 
     public static synchronized void register(Path availableList)
     {
@@ -29,7 +26,7 @@ public class EnvironmentService
 
                 Object register = Class.forName(line).newInstance();
                 if (register instanceof EnvironmentRegister) {
-                    getEnvs().add((EnvironmentRegister) register);
+                    getEnvironmentRegisters().add((EnvironmentRegister) register);
                 }
             }
         }
@@ -39,16 +36,16 @@ public class EnvironmentService
 
     public static synchronized Set<EnvironmentRegister> collection()
     {
-        return getEnvs();
+        return getEnvironmentRegisters();
     }
 
-    protected static synchronized Set<EnvironmentRegister> getEnvs()
+    protected static synchronized Set<EnvironmentRegister> getEnvironmentRegisters()
     {
-        if(null == envs)
+        if(null == environmentRegisters)
         {
-            envs = new HashSet<>();
+            environmentRegisters = new HashSet<>();
         }
 
-        return envs;
+        return environmentRegisters;
     }
 }

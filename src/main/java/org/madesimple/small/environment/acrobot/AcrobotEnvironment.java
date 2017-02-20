@@ -88,6 +88,16 @@ public class AcrobotEnvironment implements TurnBasedEnvironment, ContinuousEnvir
     }
 
     @Override
+    public void reseed() {
+        tuple.state.set(
+                ThreadLocalRandom.current().nextDouble(-AcrobotState.maxTheta1, AcrobotState.maxTheta1),
+                ThreadLocalRandom.current().nextDouble(-AcrobotState.maxTheta2, AcrobotState.maxTheta2),
+                ThreadLocalRandom.current().nextDouble(-AcrobotState.maxTheta1Dot, AcrobotState.maxTheta1Dot),
+                ThreadLocalRandom.current().nextDouble(-AcrobotState.maxTheta2Dot, AcrobotState.maxTheta2Dot)
+        );
+    }
+
+    @Override
     public void restart() {
         // Reset the environment
         turn = 0;
@@ -131,8 +141,13 @@ public class AcrobotEnvironment implements TurnBasedEnvironment, ContinuousEnvir
     }
 
     @Override
-    public int countAgents() {
+    public int agentCount() {
         return tuple.agent == null ? 0 : 1;
+    }
+
+    @Override
+    public int requiredAgentCount() {
+        return 1;
     }
 
     @Override
@@ -145,13 +160,18 @@ public class AcrobotEnvironment implements TurnBasedEnvironment, ContinuousEnvir
 
         // Provide the agent with a reward
         tuple.agent.receive(this, tuple.state, rewardPerStep);
-        if (isTerminal(tuple.agent)) {
+        if (isTerminal(tuple.state)) {
             tuple.agent.receive(this, tuple.state, rewardAtGoal);
         }
 
         // Increment the clock
         time++;
         turn++;
+    }
+
+    @Override
+    public int countBounds() {
+        return 4;
     }
 
     @Override
@@ -165,17 +185,8 @@ public class AcrobotEnvironment implements TurnBasedEnvironment, ContinuousEnvir
     }
 
     @Override
-    public boolean isTerminal(State state) {
-        return isTerminal((AcrobotState) state);
-    }
-
-    @Override
-    public boolean isTerminal(Agent agent) {
-        if (tuple.agent == agent) {
-            return isTerminal(tuple.state);
-        }
-
-        return false;
+    public boolean isTerminal(Agent agent, State state) {
+        return tuple.agent == agent && isTerminal(tuple.state);
     }
 
     @Override
@@ -183,7 +194,7 @@ public class AcrobotEnvironment implements TurnBasedEnvironment, ContinuousEnvir
         return isTerminal(tuple.state);
     }
 
-    private boolean isTerminal(AcrobotState state) {
+    public boolean isTerminal(AcrobotState state) {
         double feet_height = -(AcrobotState.l1 * Math.cos(state.getTheta1()) + AcrobotState.l2 * Math.cos(state.getTheta2()));
 
         //New Code

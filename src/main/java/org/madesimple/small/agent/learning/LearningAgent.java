@@ -50,7 +50,7 @@ public abstract class LearningAgent implements Agent {
      * </p>
      *
      * @param environment Environment given reward
-     * @param arrived     MdpState agent arrived in
+     * @param arrived     State agent arrived in
      * @param reward      Reward received for previous action
      */
     protected abstract void update(Environment environment, State arrived, double reward);

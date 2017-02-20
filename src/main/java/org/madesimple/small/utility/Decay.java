@@ -13,8 +13,7 @@ package org.madesimple.small.utility;
 public class Decay {
 
     public enum Type {
-        CONSTANT, STEP, LINEAR, EXPONENTIAL, WEIBULL, HILL, SMOOTHCOMPACT,
-        SINE, DAMPEDSINE;
+        CONSTANT, STEP, LINEAR, EXPONENTIAL, WEIBULL, HILL, SMOOTHCOMPACT, SINE, DAMPEDSINE
     }
 
     /**

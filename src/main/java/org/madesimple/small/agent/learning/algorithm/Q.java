@@ -2,9 +2,11 @@ package org.madesimple.small.agent.learning.algorithm;
 
 import org.madesimple.small.agent.Strategy;
 import org.madesimple.small.agent.learning.LearningAlgorithm;
+import org.madesimple.small.agent.learning.storage.QTable;
 import org.madesimple.small.agent.strategy.Argmax;
+import org.madesimple.small.environment.Environment;
 import org.madesimple.small.environment.State;
-import org.madesimple.small.agent.learning.storage.ActionValueTable;
+import org.madesimple.small.agent.learning.storage.qtable.ActionValueTable;
 import org.madesimple.small.utility.Configuration;
 
 import java.io.File;
@@ -34,16 +36,17 @@ import java.io.File;
  * LearningAlgorithm.Q.Alpha = 0.4
  * LearningAlgorithm.Q.Gamma = 0.999
  * LearningAlgorithm.Q.Strategy = org.madesimple.small.agent.strategy.EpsilonGreedy
+ * LearningAlgorithm.Q.InitialValue = 0.0d
  * </pre>
  *
  * @author Peter Scopes (peter.scopes@gmail.com)
  */
 public class Q implements LearningAlgorithm {
-    protected Configuration    cfg;
-    protected ActionValueTable qTable;
-    protected Strategy         strategy;
-    protected double           alpha;
-    protected double           gamma;
+    protected Configuration cfg;
+    protected QTable        qTable;
+    protected Strategy      strategy;
+    protected double        alpha;
+    protected double        gamma;
 
     public Q() {
         this.qTable = new ActionValueTable();
@@ -67,6 +70,9 @@ public class Q implements LearningAlgorithm {
         alpha = cfg.getDouble("LearningAlgorithm.Q.Alpha");
         gamma = cfg.getDouble("LearningAlgorithm.Q.Gamma");
 
+        // Initialise the action-value table
+        qTable.setInitialValue(cfg.getDouble("LearningAlgorithm.Q.InitialValue"));
+
         // Initialise the strategy
         strategy = null;
         if (cfg.hasProperty("LearningAlgorithm.Q.Strategy")) {
@@ -83,7 +89,7 @@ public class Q implements LearningAlgorithm {
     }
 
     @Override
-    public void commence() {
+    public void commence(Environment environment) {
 
     }
 
@@ -125,7 +131,7 @@ public class Q implements LearningAlgorithm {
         // Calculate the new Q value
         double Delta = r + (gamma * maxQ) - oldQ;
         double newQ  = oldQ + (alpha * Delta);
-        qTable.put(s.hashCode(), a, newQ);
+        qTable.put(s.hashCode(), a, newQ, s.availableActions());
     }
 
     @Override

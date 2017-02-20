@@ -7,7 +7,7 @@ import org.madesimple.small.agent.Agent;
 import org.madesimple.small.environment.EnvironmentRegister;
 import org.madesimple.small.environment.EnvironmentService;
 import org.madesimple.small.environment.TurnBasedEnvironment;
-import org.madesimple.small.experiment.ExperimentRunnable;
+import org.madesimple.small.experiment.Simulation;
 import org.madesimple.small.experiment.Simulator;
 import org.madesimple.small.experiment.TurnBasedExperiment;
 import org.madesimple.small.experiment.observer.ToPrintStreamObserver;
@@ -30,38 +30,37 @@ public class Small {
             System.out.printf("\t%s\n", envReg.getName());
         }
 
+        System.out.println();
+
 
         final TurnBasedExperiment experiment = new TurnBasedExperiment("FooBar", properties);
-        Factory<ExperimentRunnable> factory = new Factory<ExperimentRunnable>() {
+        Factory<Simulation> factory = () -> {
+            try {
+                // Create the parts of the simulation
+                TurnBasedEnvironment environment = (TurnBasedEnvironment) properties.getInstance("Experiment.Environment");
+                environment.setConfiguration(properties);
 
-            @Override
-            public ExperimentRunnable generate() {
-                try {
-                    // Create the parts of the experiment runnable
-                    TurnBasedEnvironment environment = (TurnBasedEnvironment) properties.getInstance("Experiment.Environment");
-                    environment.setConfiguration(properties);
+                TurnBasedEnvironment evaluation = (TurnBasedEnvironment) properties.getInstance("Experiment.Environment");
+                evaluation.setConfiguration(properties);
 
-                    TurnBasedEnvironment evaluation = (TurnBasedEnvironment) properties.getInstance("Experiment.Environment");
-                    evaluation.setConfiguration(properties);
-
-                    Agent[] agents = new Agent[properties.getInteger("Experiment.NumAgents")];
-                    for (int i = 0; i < agents.length; i++) {
-                        agents[i] = (Agent) properties.getInstance("Experiment.Agent");
-                        agents[i].setConfiguration(properties);
-                    }
-
-                    // Create and return the runnable
-                    ExperimentRunnable runnable = new ExperimentRunnable(experiment);
-                    runnable.setEnvironment(environment);
-                    runnable.setEvaluation(evaluation);
-                    runnable.setAgents(agents);
-                    runnable.addObserver(new ToPrintStreamObserver(System.out));
-
-                    return runnable;
+                Agent[] agents = new Agent[environment.requiredAgentCount()];
+                for (int i = 0; i < agents.length; i++) {
+                    agents[i] = (Agent) properties.getInstance("Experiment.Agent");
+                    agents[i].setConfiguration(properties);
                 }
-                catch (Exception e) {
-                    return null;
-                }
+
+                // Create and return the simulation
+                Simulation simulation = (Simulation) properties.getInstance("Experiment.Simulation");
+                simulation.setExperiment(experiment);
+                simulation.setEnvironment(environment);
+                simulation.setEvaluation(evaluation);
+                simulation.setAgents(agents);
+                simulation.addObserver(new ToPrintStreamObserver(System.out));
+
+                return simulation;
+            }
+            catch (Exception e) {
+                return null;
             }
         };
         Simulator simulator = new Simulator(experiment, factory);

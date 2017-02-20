@@ -5,7 +5,7 @@ package org.madesimple.small.utility;
  */
 public class StopWatch {
     private enum State {
-        RUNNING, PAUSED, STOPPED;
+        RUNNING, PAUSED, STOPPED
     }
 
     private long start,
@@ -47,12 +47,12 @@ public class StopWatch {
     }
 
     /**
-     * <p>Unpause the clock. This only has any affect if the
+     * <p>Resume the clock. This only has any affect if the
      * stopwatch is {@link #pause() paused}.</p>
      *
-     * @return True if was paused and has now been unpaused
+     * @return True if was paused and has now been resumed
      */
-    public boolean unpause() {
+    public boolean resume() {
         if (state == State.PAUSED) {
             start = System.currentTimeMillis() - pause;
             pause = 0L;
@@ -91,7 +91,7 @@ public class StopWatch {
      * <p>Will return <code>True</code> if the stopwatch has been
      * {@link #start() started} and has subsequently it has been
      * {@link #pause() paused} and not been {@link #stop() stopped}
-     * nor {@link #unpause() unpaused}.</p>
+     * nor {@link #resume() unpaused}.</p>
      *
      * @return True if the stopwatch is currently paused
      */

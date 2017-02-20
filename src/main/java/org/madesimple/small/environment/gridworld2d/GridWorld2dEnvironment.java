@@ -90,6 +90,7 @@ public class GridWorld2dEnvironment implements TurnBasedEnvironment {
     protected double rewardTransition = -1.0d;
     protected double rewardAtGoal     = 0.0d;
     protected int maxTurns;
+    protected int requiredAgents;
 
     protected Configuration     cfg;
     protected GridWorld2dLayout layout;
@@ -121,6 +122,7 @@ public class GridWorld2dEnvironment implements TurnBasedEnvironment {
 
         // Initialise max turns
         maxTurns = cfg.getInteger("Environment.GridWorld2d.MaxTurns");
+        requiredAgents = cfg.getInteger("Environment.GridWorld2d.NumAgents");
 
         // Initialise the clock
         time = 0;
@@ -151,6 +153,16 @@ public class GridWorld2dEnvironment implements TurnBasedEnvironment {
             return layout;
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
+        }
+    }
+
+    @Override
+    public void reseed() {
+        for (Tuple tuple : tuples) {
+            tuple.state.set(
+                    ThreadLocalRandom.current().nextInt(0, layout.stateWidth),
+                    ThreadLocalRandom.current().nextInt(0, layout.stateHeight)
+            );
         }
     }
 
@@ -213,18 +225,23 @@ public class GridWorld2dEnvironment implements TurnBasedEnvironment {
     }
 
     @Override
-    public int countAgents() {
+    public int agentCount() {
         return mappedTuples.size();
+    }
+
+    @Override
+    public int requiredAgentCount() {
+        return requiredAgents;
     }
 
     @Override
     public void performTurn() {
         // Let each agent choose their action
-        for (int i = 0; i < tuples.length; i++) {
-            if (!tuples[i].arrived) {
-                tuples[i].next.set(tuples[i].state);
-                int action = tuples[i].agent.act(this, tuples[i].state);
-                attemptAction(tuples[i], action);
+        for (Tuple tuple : tuples) {
+            if (!tuple.arrived) {
+                tuple.next.set(tuple.state);
+                int action = tuple.agent.act(this, tuple.state);
+                attemptAction(tuple, action);
             }
         }
 
@@ -232,16 +249,14 @@ public class GridWorld2dEnvironment implements TurnBasedEnvironment {
         conflictResolution();
 
         // Now move all agents and update whether they have arrived
-        for (int i = 0; i < tuples.length; i++) {
-            tuples[i].state.set(tuples[i].next);
-            tuples[i].arrived = tuples[i].goal != null ?
-                    tuples[i].state.equals(tuples[i].goal) :
-                    layout.goals.contains(tuples[i].state);
+        for (Tuple tuple : tuples) {
+            tuple.state.set(tuple.next);
+            tuple.arrived = tuple.goal != null ? tuple.state.equals(tuple.goal) : layout.goals.contains(tuple.state);
         }
 
         // Provide the agents with their rewards
-        for (int i = 0; i < tuples.length; i++) {
-            tuples[i].agent.receive(this, tuples[i].state, tuples[i].arrived ? rewardAtGoal : rewardTransition);
+        for (Tuple tuple : tuples) {
+            tuple.agent.receive(this, tuple.state, tuple.arrived ? rewardAtGoal : rewardTransition);
         }
 
         // Increment the clock
@@ -263,18 +278,11 @@ public class GridWorld2dEnvironment implements TurnBasedEnvironment {
     }
 
     @Override
-    public boolean isTerminal(Agent agent) {
-        Tuple tuple = fetch(agent);
-        if (tuple != null) {
-            return tuple.arrived;
-        }
-
-        return false;
+    public boolean isTerminal(Agent agent, State state) {
+        return isTerminal(fetch(agent), (GridWorld2dState) state);
     }
-
-    @Override
-    public boolean isTerminal(State state) {
-        return false;
+    protected boolean isTerminal(Tuple tuple, GridWorld2dState state) {
+        return tuple.goal != null ? state.equals(tuple.goal) : layout.goals.contains(state);
     }
 
     @Override
@@ -426,9 +434,9 @@ public class GridWorld2dEnvironment implements TurnBasedEnvironment {
 
             // If there was a conflict
             if (hasConflict) {
-//                a.next.set(a.state);
-//                a.collided = true;
-//                i = 0;
+                a.next.set(a.state);
+                a.collided = true;
+                i = 0;
             }
         }
     }

@@ -3,7 +3,6 @@ package org.madesimple.small.agent.learning;
 import org.madesimple.small.environment.Environment;
 import org.madesimple.small.environment.State;
 import org.madesimple.small.utility.Configuration;
-import org.madesimple.small.utility.Factory;
 
 import java.io.File;
 
@@ -15,16 +14,16 @@ import java.io.File;
  * @author Peter Scopes (peter.scopes@gmail.com)
  */
 public class DiscreteLearningAgent extends LearningAgent {
-    private Configuration     cfg;
-    private LearningAlgorithm learning;
-    private State             actionState;
-    private State             rewardState;
-    private int               action;
-    private boolean           retrieved;
+    private   Configuration     cfg;
+    private   LearningAlgorithm learning;
+    private   State             actionState;
+    private   State             rewardState;
+    private   int               action;
+    private   boolean           retrieved;
     /**
      * Accumulative reward received since last reset.
      */
-    protected double accumulativeReward;
+    protected double            accumulativeReward;
 
     public DiscreteLearningAgent() {
         this.retrieved = false;
@@ -38,19 +37,13 @@ public class DiscreteLearningAgent extends LearningAgent {
     @Override
     public void initialise() {
         if (!retrieved) {
-            // Initialise the learning algorithm
-            learning = null;
-            if (cfg.hasProperty("Agent.LearningAlgorithm")) {
-                try {
-                    Object instance = cfg.getInstance("Agent.LearningAlgorithm");
-                    if (instance instanceof LearningAlgorithm) {
-                        learning = (LearningAlgorithm) instance;
-                        learning.setConfiguration(cfg);
-                        learning.initialise();
-                    }
-                } catch (Exception e) {
-                    throw new RuntimeException(e.getMessage());
-                }
+            try {
+                // Initialise the learning algorithm
+                learning = (LearningAlgorithm) cfg.getInstance("Agent.LearningAlgorithm");
+                learning.setConfiguration(cfg);
+                learning.initialise();
+            } catch (Exception e) {
+                throw new RuntimeException(e.getCause());
             }
         }
 
@@ -64,7 +57,7 @@ public class DiscreteLearningAgent extends LearningAgent {
         accumulativeReward = 0.0;
 
         // Commence the learning
-        learning.commence();
+        learning.commence(environment);
     }
 
     @Override
@@ -97,7 +90,7 @@ public class DiscreteLearningAgent extends LearningAgent {
     protected void update(Environment environment, State arrived, double reward) {
         rewardState.set(arrived);
         learning.update(actionState, action, rewardState, reward);
-        if (environment.isTerminal(this)) {
+        if (environment.isTerminal(this, arrived)) {
             learning.conclude();
         }
     }

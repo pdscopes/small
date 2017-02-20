@@ -1,4 +1,6 @@
-package org.madesimple.small.agent.learning.storage;
+package org.madesimple.small.agent.learning.storage.qtable;
+
+import org.madesimple.small.agent.learning.storage.QTable;
 
 import java.io.*;
 import java.util.Arrays;
@@ -33,7 +35,7 @@ import java.util.Map;
  *
  * @author Peter Scopes (peter.scopes@gmail.com)
  */
-public class ActionValueTable {
+public class ActionValueTable implements QTable {
     private static final class ActionValues {
         double[] values;
 
@@ -43,6 +45,14 @@ public class ActionValueTable {
         }
     }
 
+    /**
+     * Initial value entries will receive.
+     */
+    private double initialValue;
+
+    /**
+     * Mapping of state has to action-value pairs.
+     */
     private Map<Integer, ActionValues> table;
 
 
@@ -53,6 +63,10 @@ public class ActionValueTable {
     public ActionValueTable(int nStates) {
         table = new HashMap<>(nStates);
         reset();
+    }
+
+    public void setInitialValue(double initialValue) {
+        this.initialValue = initialValue;
     }
 
     public void reset() {
@@ -67,7 +81,7 @@ public class ActionValueTable {
         ActionValues actionValues;
 
         if ((actionValues = table.get(state)) == null) {
-            actionValues = new ActionValues(nActions, 0.0);
+            actionValues = new ActionValues(nActions, initialValue);
             table.put(state, actionValues);
         }
 

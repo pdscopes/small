@@ -7,53 +7,50 @@ import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * <p>
- * Epsilon-First consists of a pure exploration phase followed by a pure
- * exploitation phase. For <em>N</em> steps in total, the exploration phase
- * occupies <em>&epsilon;N</em> steps and the exploitation phase
- * <em>(1 - &epsilon;)N</em> steps. During the exploration phase, actions are
- * chosen randomly (with uniform probability); during the exploitation phase,
- * the action with the highest value is always chosen.
+ * The &epsilon;-First action selection strategy consists of a pure exploration phase followed by a pure exploitation
+ * phase. These phases can be cycled, however it is not recommended. For <em>N</em> steps in the cycle, the exploration
+ * phase occupies <code>&epsilon; * N</code> steps and the exploitation phases <code>(1 - &epsilon;) * N</code> steps.
  * </p>
  * <p>
- * Epsilon-First has an internal counter keeping track of the step number,
- * <em>n</em>. If a new episode is started and the step counter should be reset
- * call {@link #reset()}. When <em>N</em> steps have been performed
- * Epsilon-First returns to exploration actions until a further
- * <em>&epsilon;N</em> steps have been performed.
+ * During the exploration phase actions are selected purely at random, with uniform probability. During the exploitation
+ * phase the <em>Argmax</em> value of possible action-value pairs.
  * </p>
  * <p>
- * Properties required to run EpsilonFirst in a configuration file:
+ * The default properties for EpsilonFirst are:
  * </p>
  * <pre>
  * ## Epsilon-First Selection Settings
  * Strategy.EpsilonFirst.Epsilon = 0.1
- * ; Strategy.EpsilonFirst.N       = 500
+ * Strategy.EpsilonFirst.N       = 500
  * </pre>
  *
  * @author Peter Scopes (peter.scopes@gmail.com)
  */
 public class EpsilonFirst implements Strategy {
     /**
-     * The percentage of the steps, <em>N</em>, that are exploration actions.
-     */
-    private double epsilon;
-
-    /**
      * The number of steps in the cycle.
      */
     private int N;
 
     /**
-     * The calculated value of epsilon * N.
+     * <p>
+     * The calculated value of <code>&epsilon; * N</code>.
+     * </p>
+     * <dl>
+     * <dt>&epsilon;</dt><dd>Percentage of steps that are exploration actions</dd>
+     * <dt>N</dt><dd>Number of steps in exploration/exploitation cycle</dd>
+     * </dl>
      */
     private double epsilonN;
 
     public EpsilonFirst() {
 
     }
+
     public EpsilonFirst(Configuration cfg) {
         setConfiguration(cfg);
     }
+
     public EpsilonFirst(double epsilon, int N) {
         set(epsilon, N);
     }
@@ -61,13 +58,12 @@ public class EpsilonFirst implements Strategy {
     @Override
     public void setConfiguration(Configuration cfg) {
         double epsilon = cfg.getDouble("Strategy.EpsilonFirst.Epsilon");
-        int N = cfg.getInteger("Strategy.EpsilonFirst.N");
+        int    N       = cfg.getInteger("Strategy.EpsilonFirst.N");
 
         set(epsilon, N);
     }
 
     private void set(double epsilon, int N) {
-        this.epsilon = epsilon;
         this.N = N;
         epsilonN = epsilon * N;
     }
