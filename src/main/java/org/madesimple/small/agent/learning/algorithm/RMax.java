@@ -2,8 +2,9 @@ package org.madesimple.small.agent.learning.algorithm;
 
 import org.madesimple.small.agent.learning.LearningAlgorithm;
 import org.madesimple.small.agent.strategy.Argmax;
+import org.madesimple.small.environment.Environment;
 import org.madesimple.small.environment.State;
-import org.madesimple.small.agent.learning.storage.ActionValueTable;
+import org.madesimple.small.agent.learning.storage.qtable.ActionValueTable;
 import org.madesimple.small.utility.Configuration;
 
 import java.io.File;
@@ -87,10 +88,13 @@ public class RMax implements LearningAlgorithm {
         m = cfg.getInteger("LearningAlgorithm.RMax.M");
         epsilon = cfg.getDouble("LearningAlgorithm.RMax.Epsilon");
         upperBound = cfg.getDouble("LearningAlgorithm.RMax.UpperBound");
+
+        // Initialise the action-value table
+        qTable.setInitialValue(cfg.getDouble("LearningAlgorithm.RMax.InitialValue"));
     }
 
     @Override
-    public void commence() {
+    public void commence(Environment environment) {
 
     }
 

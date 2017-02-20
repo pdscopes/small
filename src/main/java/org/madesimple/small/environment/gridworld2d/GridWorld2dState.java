@@ -2,7 +2,6 @@ package org.madesimple.small.environment.gridworld2d;
 
 import org.madesimple.small.environment.DiscreteState;
 import org.madesimple.small.environment.State;
-import org.madesimple.small.utility.Factory;
 
 /**
  * @author Peter Scopes (peter.scopes@gmail.com)
@@ -49,10 +48,7 @@ public class GridWorld2dState extends DiscreteState {
 
     @Override
     public boolean equals(Object that) {
-        if (that instanceof GridWorld2dState) {
-            return cmp(this, (GridWorld2dState) that);
-        }
-        return false;
+        return that instanceof GridWorld2dState && cmp(this, (GridWorld2dState) that);
     }
 
     @Override
@@ -160,5 +156,7 @@ public class GridWorld2dState extends DiscreteState {
             }
             return;
         }
+
+        throw new RuntimeException("Unknown action instance");
     }
 }

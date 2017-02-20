@@ -2,9 +2,11 @@ package org.madesimple.small.agent.learning.algorithm;
 
 import org.madesimple.small.agent.Strategy;
 import org.madesimple.small.agent.learning.LearningAlgorithm;
+import org.madesimple.small.agent.learning.storage.QTable;
 import org.madesimple.small.agent.strategy.Argmax;
+import org.madesimple.small.environment.Environment;
 import org.madesimple.small.environment.State;
-import org.madesimple.small.agent.learning.storage.ActionValueTable;
+import org.madesimple.small.agent.learning.storage.qtable.ActionValueTable;
 import org.madesimple.small.utility.Configuration;
 
 import java.io.File;
@@ -39,11 +41,11 @@ import java.io.File;
  * @author Peter Scopes (peter.scopes@gmail.com)
  */
 public class Sarsa implements LearningAlgorithm {
-    protected Configuration    cfg;
-    protected ActionValueTable qTable;
-    protected Strategy         strategy;
-    protected double           alpha;
-    protected double           gamma;
+    protected Configuration cfg;
+    protected QTable        qTable;
+    protected Strategy      strategy;
+    protected double        alpha;
+    protected double        gamma;
 
     protected boolean hasPotentialState;
     protected State   potentialState;
@@ -71,6 +73,9 @@ public class Sarsa implements LearningAlgorithm {
         alpha = cfg.getDouble("LearningAlgorithm.SARSA.Alpha");
         gamma = cfg.getDouble("LearningAlgorithm.SARSA.Gamma");
 
+        // Initialise the action-value table
+        qTable.setInitialValue(cfg.getDouble("LearningAlgorithm.SARSA.InitialValue"));
+
         // Initialise the strategy
         strategy = null;
         if (cfg.hasProperty("LearningAlgorithm.SARSA.Strategy")) {
@@ -87,7 +92,7 @@ public class Sarsa implements LearningAlgorithm {
     }
 
     @Override
-    public void commence() {
+    public void commence(Environment environment) {
         clearTransitions();
     }
 
@@ -110,12 +115,14 @@ public class Sarsa implements LearningAlgorithm {
         }
     }
 
-    protected int selectPotential(State state, int time) {
+    protected double selectPotential(State state, int time) {
+        double[] qValues = qTable.get(state.hashCode(), state.availableActions());
+
         hasPotentialState = true;
         potentialState = state;
-        potentialAction = strategy.select(qTable.get(state.hashCode(), state.availableActions()), time);
+        potentialAction = strategy.select(qValues, time);
 
-        return potentialAction;
+        return qValues[potentialAction];
     }
 
     @Override
@@ -138,7 +145,7 @@ public class Sarsa implements LearningAlgorithm {
         double Delta = r + (gamma * nextQ) - oldQ;
         double newQ  = oldQ + (alpha * Delta);
 
-        qTable.put(s.hashCode(), a, newQ);
+        qTable.put(s.hashCode(), a, newQ, s.availableActions());
     }
 
     @Override

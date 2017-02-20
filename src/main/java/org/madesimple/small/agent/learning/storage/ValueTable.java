@@ -6,20 +6,18 @@ import java.util.Map;
 
 /**
  * <p>
- * Discrete Value Table is an implementation of a value table specifically made
- * for YORLL. It allows for simple access and updates of state values.
+ * Discrete Value Table is an implementation of a value table specifically made for SMALL. It allows for simple access
+ * and updates of state values.
  * </p>
  * <p>
- * A nice feature of this Value Table is that it isn't required before hand to
- * know the number of state representations that will be encountered along the
- * way but can dynamically increase it's size when needed. This obviously has a
- * latent cost so where possible it is recommended to use the
- * DiscreteValueTable(int nStates) as the constructor to give it a large
- * starting size since it defaults to a maximum size of 10.
+ * A nice feature of this Value Table is that it isn't required before hand to know the number of state representations
+ * that will be encountered along the way but can dynamically increase it's size when needed. This obviously has a
+ * latent cost so where possible it is recommended to use the DiscreteValueTable(int nStates) as the constructor to give
+ * it a large starting size since it defaults to a maximum size of 10.
  * </p>
  * <p>
- * <em>Note:</em> That if you underestimate the number of states in the
- * constructor the dynamic increase of size will still happen.
+ * <em>Note:</em> That if you underestimate the number of states in the constructor the dynamic increase of size will
+ * still happen.
  * </p>
  *
  * @author Peter Scopes (peter.scopes@gmail.com)

@@ -62,11 +62,18 @@ public class MountainCarState implements ContinuousState {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof MountainCarState) {
-            return cmp(this, (MountainCarState) obj);
-        }
+        return obj instanceof MountainCarState && cmp(this, (MountainCarState) obj);
+    }
 
-        return false;
+    @Override
+    public double tuple(int feature) {
+        switch (feature) {
+            case 0:
+                return position;
+            case 1:
+                return velocity;
+        }
+        throw new RuntimeException("Unknown feature");
     }
 
     @Override
@@ -86,10 +93,7 @@ public class MountainCarState implements ContinuousState {
 
     @Override
     public int hashCode() {
-        return Hash.pair(new int[] {
-                (int)(position*1000.0d),
-                (int)(velocity*1000.0d)
-        });
+        return Hash.pair((int)(position*1000.0d), (int)(velocity*1000.0d));
     }
 
     @Override

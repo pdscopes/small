@@ -11,10 +11,9 @@ import java.util.Map;
 public class Experiment {
     public String              name;
     public Map<String, String> properties;
-    public Simulation.Type     simulationType;
+    public Simulator.Type      simulatorType;
     public int                 randomSeed;
     public int                 totalRuns;
-    public int                 numAgents;
 
     public Experiment(String name, Configuration cfg) {
         set(name, cfg);
@@ -23,9 +22,8 @@ public class Experiment {
     public void set(String name, Configuration cfg) {
         this.name = name;
         this.properties = new LinkedHashMap<>();
-        this.simulationType = Simulation.Type.valueOf(cfg.getString("Experiment.SimulationType").toUpperCase());
+        this.simulatorType = Simulator.Type.valueOf(cfg.getString("Experiment.SimulatorType").toUpperCase());
         this.randomSeed = cfg.getInteger("Experiment.RandomSeed");
         this.totalRuns = cfg.getInteger("Experiment.TotalRuns");
-        this.numAgents = cfg.getInteger("Experiment.NumAgents");
     }
 }

@@ -1,69 +1,80 @@
 package org.madesimple.small.experiment;
 
-import org.madesimple.small.utility.Factory;
+import org.madesimple.small.agent.Agent;
+import org.madesimple.small.agent.learning.LearningAgent;
+import org.madesimple.small.environment.TurnBasedEnvironment;
+import org.madesimple.small.experiment.observation.TurnBasedRewardObservation;
 
-import java.util.concurrent.Semaphore;
+import java.util.Observable;
 
 /**
  * @author Peter Scopes (peter.scopes@gmail.com)
  */
-public abstract class Simulation implements Runnable {
-    public enum Type {
-        CONCURRENT, SEQUENTIAL
-    }
+public abstract class Simulation extends Observable implements Runnable {
 
-    protected Experiment experiment;
-    protected Factory<ExperimentRunnable> runnableFactory;
-    protected Progress.Agenda agenda;
+    protected Progress.Task        task;
+    protected TurnBasedExperiment  experiment;
+    protected TurnBasedEnvironment environment;
+    protected TurnBasedEnvironment evaluation;
+    protected Agent[]              agents;
+    protected int                  run;
 
-    public void setExperiment(Experiment experiment) {
+    public void setExperiment(TurnBasedExperiment experiment) {
         this.experiment = experiment;
     }
 
-    public void setRunnableFactory(Factory<ExperimentRunnable> runnableFactory) {
-        this.runnableFactory = runnableFactory;
+    public void setTask(Progress.Task task) {
+        this.task = task;
     }
 
-    public void setAgenda(Progress.Agenda agenda) {
-        this.agenda = agenda;
+    public void setRun(int run) {
+        this.run = run;
     }
 
-    public static final class Concurrent extends Simulation {
+    public void setEnvironment(TurnBasedEnvironment environment) {
+        this.environment = environment;
+    }
 
-        @Override
-        public void run() {
-            // Get the number of available processors
-            int             availableProcessors = Math.max(1, Runtime.getRuntime().availableProcessors() - 1);
-            final Semaphore semaphore           = new Semaphore(availableProcessors, true);
+    public void setEvaluation(TurnBasedEnvironment evaluation) {
+        this.evaluation = evaluation;
+    }
 
-            // Run the experiments
-            for (int run = 1; run <= experiment.totalRuns; run++) {
-                try {
-                    semaphore.acquire();
+    public void setAgents(Agent[] agents) {
+        this.agents = agents;
+    }
 
-                    ExperimentRunnable runnable = runnableFactory.generate();
-                    runnable.setRun(run);
-                    runnable.setTask(agenda.task(run-1));
+    protected void evaluate(int run, int update, int episode) {
+        // Initialise the evaluation environment
+        evaluation.initialise();
 
-                    Thread th = new Thread(runnable);
-                    th.start();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+        // Turn on the evaluation mode of the agents
+        for (Agent agent : agents) {
+            environment.remove(agent);
+            evaluation.add(agent);
+            if (agent instanceof LearningAgent) {
+                ((LearningAgent) agent).setEvaluationMode(true);
             }
         }
-    }
 
-    public static final class Sequential extends Simulation {
+        // Restart the evaluation environment
+        evaluation.restart();
 
-        @Override
-        public void run() {
-            // Run the experiments
-            for (int run = 1; run <= experiment.totalRuns; run++) {
-                ExperimentRunnable runnable = runnableFactory.generate();
-                runnable.setRun(run);
-                runnable.setTask(agenda.task(run-1));
-                runnable.run();
+        // Play out an episode
+        int turn;
+        for (turn = 1; !evaluation.isTerminal() && (environment.maxTurns() == 0 || turn <= environment.maxTurns()); turn++) {
+            evaluation.performTurn();
+        }
+
+        // Store the observation
+        setChanged();
+        notifyObservers(new TurnBasedRewardObservation(run, update, episode, turn, evaluation, agents));
+
+        // Turn off the evaluation mode of the agents
+        for (Agent agent : agents) {
+            evaluation.remove(agent);
+            environment.add(agent);
+            if (agent instanceof LearningAgent) {
+                ((LearningAgent) agent).setEvaluationMode(false);
             }
         }
     }

@@ -18,8 +18,8 @@ import java.util.concurrent.ThreadLocalRandom;
  * ## Mountain Car Environment settings
  * Environment.MountainCar.RewardPerStep = -1.0d
  * Environment.MountainCar.RewardAtGoal = 0.0d
- * Environment.Acrobot.RandomStarts = false
- * Environment.Acrobot.TransitionNoise = 0.0d
+ * Environment.MountainCar.RandomStarts = false
+ * Environment.MountainCar.TransitionNoise = 0.0d
  * Environment.MountainCar.MaxTurns = 4000
  * </pre>
  *
@@ -145,6 +145,14 @@ public class MountainCarEnvironment implements TurnBasedEnvironment, ContinuousE
     }
 
     @Override
+    public void reseed() {
+        tuple.state.set(
+                ThreadLocalRandom.current().nextDouble(MIN_POSITION, MAX_POSITION),
+                ThreadLocalRandom.current().nextDouble(MIN_VELOCITY, MAX_VELOCITY)
+        );
+    }
+
+    @Override
     public void restart() {
         // Reset the environment
         turn = 0;
@@ -186,8 +194,13 @@ public class MountainCarEnvironment implements TurnBasedEnvironment, ContinuousE
     }
 
     @Override
-    public int countAgents() {
+    public int agentCount() {
         return tuple.agent == null ? 0 : 1;
+    }
+
+    @Override
+    public int requiredAgentCount() {
+        return 1;
     }
 
     @Override
@@ -211,6 +224,11 @@ public class MountainCarEnvironment implements TurnBasedEnvironment, ContinuousE
     }
 
     @Override
+    public int countBounds() {
+        return 2;
+    }
+
+    @Override
     public double[] lowerBounds() {
         return new double[]{MIN_POSITION, MIN_VELOCITY};
     }
@@ -221,16 +239,8 @@ public class MountainCarEnvironment implements TurnBasedEnvironment, ContinuousE
     }
 
     @Override
-    public boolean isTerminal(State state) {
-        return isTerminal((MountainCarState) state);
-    }
-
-    @Override
-    public boolean isTerminal(Agent agent) {
-        if (tuple.agent == agent) {
-            return isTerminal(tuple.state);
-        }
-        return false;
+    public boolean isTerminal(Agent agent, State state) {
+        return tuple.agent == agent && isTerminal((MountainCarState) state);
     }
 
     @Override
@@ -238,7 +248,7 @@ public class MountainCarEnvironment implements TurnBasedEnvironment, ContinuousE
         return isTerminal(tuple.state);
     }
 
-    public boolean isTerminal(MountainCarState state) {
+    private boolean isTerminal(MountainCarState state) {
         return state.getPosition() >= GOAL_POSITION;
     }
 

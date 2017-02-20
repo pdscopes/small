@@ -1,6 +1,7 @@
 package org.madesimple.small.agent.learning;
 
 import org.madesimple.small.agent.Policy;
+import org.madesimple.small.environment.Environment;
 import org.madesimple.small.environment.State;
 
 import java.io.File;
@@ -42,7 +43,7 @@ public interface LearningAlgorithm extends Policy {
     /**
      * Informs the LearningAlgorithm that learning is about to commence. Should forget transition history.
      */
-    void commence();
+    void commence(Environment environment);
 
     /**
      * Given <em>state</em> this method should return the action that should be performed.
@@ -62,9 +63,9 @@ public interface LearningAlgorithm extends Policy {
     /**
      * Add a transition to the LearningAlgorithm.
      *
-     * @param s  MdpState where the action was performed
+     * @param s  State where the action was performed
      * @param a  Action performed
-     * @param s_ MdpState transitioned to
+     * @param s_ State transitioned to
      * @param r  Numeric amount
      */
     void update(State s, int a, State s_, double r);

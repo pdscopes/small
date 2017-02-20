@@ -5,18 +5,10 @@ import org.madesimple.small.utility.Configurable;
 
 /**
  * <p>
- * An Environment is a domain in which an {@link TurnBasedAgent} can interact.
- * Possible interactions are perception and action. An environment should
- * be able to keep track of the entire state of the domain, including all
- * agents present; provide the, potentially partial, state that a present
- * agent can perceive; and, update the state of the entire environment
- * based on the actions performed by an agent.
- * </p>
- * <p>
- * Environment is an abstract class that must be extended in your own
- * experiment. An environment should contain all the logic for interactions of
- * agents; this could mean this is a wrapper class to connect the agents to an
- * external system or actually contain the modelling code itself.
+ * An Environment is a domain in which a set Agents (see {@link Agent}) can interact. An Environment should keep track
+ * of the entire state of the domain and the agents that are present in the domain. An Environment must contain all the
+ * logic for interactions with agents; this could mean an Environment is a middleware wrapper class to connect agents to
+ * an external simulation or actually contain the modelling code itself.
  * </p>
  * <p>
  * Please see the abstract methods for further information.
@@ -86,23 +78,21 @@ public interface Environment extends Configurable {
     /**
      * @return number of agents that are currently in the environment
      */
-    int countAgents();
+    int agentCount();
 
     /**
-     * Tests the environment to see if a terminal state has been reached.
-     *
-     * @param state state
-     * @return True if environment is in a terminal state, false otherwise
+     * @return number of agents this environment requires
      */
-    boolean isTerminal(State state);
+    int requiredAgentCount();
 
     /**
      * Tests the environment to see if an agent has arrived in a terminal state.
      *
      * @param agent Agent
+     * @param state State
      * @return True if agent is in terminal state, false otherwise
      */
-    boolean isTerminal(Agent agent);
+    boolean isTerminal(Agent agent, State state);
 
     /**
      * Tests the environment to see if all agents are in a terminal state.

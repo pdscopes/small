@@ -15,7 +15,7 @@ public abstract class DiscreteState implements State {
     public abstract int[] tuple();
 
     /**
-     * Allow the MdpState to be hashed.
+     * Allow the State to be hashed.
      *
      * @return hash code representation
      */

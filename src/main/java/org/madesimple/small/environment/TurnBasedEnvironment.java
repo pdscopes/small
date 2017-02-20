@@ -45,6 +45,11 @@ public interface TurnBasedEnvironment extends Environment {
     void restart();
 
     /**
+     * Place the environment is a random, valid state.
+     */
+    void reseed();
+
+    /**
      * Return the maximum number of turns allowed in a single episode.
      *
      * @return Number of turns per episode allowed
@@ -61,9 +66,9 @@ public interface TurnBasedEnvironment extends Environment {
      * following ways:
      * </p>
      * <ul>
-     * <li>mutually  = decline all agents involved in the conflict</li>
-     * <li>orderedly = decline agents in a specified order, such as priority</li>
-     * <li>randomly  = decline agents in a random order</li>
+     * <li>mutually = decline all agents involved in the conflict</li>
+     * <li>orderly  = decline agents in a specified order, such as priority</li>
+     * <li>randomly = decline agents in a random order</li>
      * </ul>
      * <p>
      * Finally this method should inform the agent(s) of their reward for

@@ -71,11 +71,22 @@ public class AcrobotState implements ContinuousState {
 
     @Override
     public boolean equals(Object that) {
-        if (that instanceof AcrobotState) {
-            return cmp(this, (AcrobotState) that);
-        }
+        return that instanceof AcrobotState && cmp(this, (AcrobotState) that);
+    }
 
-        return false;
+    @Override
+    public double tuple(int feature) {
+        switch (feature) {
+            case 0:
+                return theta1;
+            case 1:
+                return theta2;
+            case 2:
+                return theta1Dot;
+            case 3:
+                return theta2Dot;
+        }
+        throw new RuntimeException("Unknown feature");
     }
 
     @Override
@@ -95,12 +106,12 @@ public class AcrobotState implements ContinuousState {
 
     @Override
     public int hashCode() {
-        return Hash.pair(new int[] {
+        return Hash.pair(
                 (int)(theta1*10000.0d),
                 (int)(theta2*10000.0d),
                 (int)(theta1Dot*10000.0d),
                 (int)(theta2Dot*10000.0d)
-        });
+        );
     }
 
     @Override

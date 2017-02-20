@@ -29,7 +29,7 @@ public class GridWorld2dLayout {
         parse(new ArrayList<>());
     }
 
-    public void parse(List<Map<Character, Double>> probs) {
+    public void parse(List<Map<Character, Double>> probabilities) {
 
         // Search the layout for start and goal positions for agents
         availableTuples = new ArrayList<>();
@@ -98,11 +98,11 @@ public class GridWorld2dLayout {
             }
         }
 
-        initialiseProbabilities(probs);
+        initialiseProbabilities(probabilities);
     }
 
-    protected void initialiseProbabilities(List<Map<Character, Double>> probs) {
-        probabilities = new double[height / 2][width / 2][Compass.Cardinal.values().length];
+    protected void initialiseProbabilities(List<Map<Character, Double>> probabilities) {
+        this.probabilities = new double[height / 2][width / 2][Compass.Cardinal.values().length];
         GridWorld2dState tmp = new GridWorld2dState(0, 0);
         for (int y = 1, dy = 0, numGate = 0; y < height; y += 2, dy++) {
             for (int x = 1, dx = 0; x < width; x += 2, dx++) {
@@ -116,16 +116,16 @@ public class GridWorld2dLayout {
                                 case MAP_GATE:
                                     switch (Compass.Cardinal.values()[a]) {
                                         case NORTH:
-                                            prob = probs.get(numGate).get('^');
+                                            prob = probabilities.get(numGate).get('^');
                                             break;
                                         case SOUTH:
-                                            prob = probs.get(numGate).get('v');
+                                            prob = probabilities.get(numGate).get('v');
                                             break;
                                         case EAST:
-                                            prob = probs.get(numGate).get('>');
+                                            prob = probabilities.get(numGate).get('>');
                                             break;
                                         case WEST:
-                                            prob = probs.get(numGate).get('<');
+                                            prob = probabilities.get(numGate).get('<');
                                             break;
                                     }
                                     break;
@@ -166,8 +166,8 @@ public class GridWorld2dLayout {
                                     prob = 0.0d;
                             }
 
-                            probabilities[dy][dx][a] = prob;
-                            numGate = Math.min(probs.size() - 1, ++numGate);
+                            this.probabilities[dy][dx][a] = prob;
+                            numGate = Math.min(probabilities.size() - 1, ++numGate);
                         }
                         break;
                 }

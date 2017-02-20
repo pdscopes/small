@@ -32,7 +32,7 @@ public interface Compass<E> {
      */
     E clockwise();
 
-    public static enum Cardinal implements Compass<Cardinal> {
+    enum Cardinal implements Compass<Cardinal> {
         NORTH(0), EAST(90), SOUTH(180), WEST(270);
 
         private double angle;
@@ -117,13 +117,13 @@ public interface Compass<E> {
         }
     }
 
-    public static enum Ordinal implements Compass<Ordinal> {
+    enum Ordinal implements Compass<Ordinal> {
         NORTH(0), EAST(90), SOUTH(180), WEST(270),
         NORTHEAST(45), SOUTHEAST(135), SOUTHWEST(225), NORTHWEST(315);
 
         private double angle;
 
-        private Ordinal(int angle) {
+        Ordinal(int angle) {
             this.angle = angle;
         }
 

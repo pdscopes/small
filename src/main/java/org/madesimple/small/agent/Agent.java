@@ -30,7 +30,7 @@ public interface Agent extends Configurable {
     /**
      * Return the agent to its condition when it first enters an environment.
      *
-     * @see #add(Environment)
+     * @see #add(Environment, State)
      */
     void reset(Environment environment);
 
@@ -54,7 +54,7 @@ public interface Agent extends Configurable {
      * Act upon <em>environment</em>.
      *
      * @param environment Environment to act upon
-     * @param state       MdpState to act from
+     * @param state       State to act from
      * @return Action to perform
      */
     int act(Environment environment, State state);
@@ -64,7 +64,7 @@ public interface Agent extends Configurable {
      * why the it received this reward.
      *
      * @param environment Environment given reward
-     * @param arrived     MdpState agent arrived in
+     * @param arrived     State agent arrived in
      * @param reward      Numeric amount
      */
     void receive(Environment environment, State arrived, double reward);

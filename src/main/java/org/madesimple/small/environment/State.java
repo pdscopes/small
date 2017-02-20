@@ -2,7 +2,7 @@ package org.madesimple.small.environment;
 
 /**
  * <p>
- * MdpState is an interface which defines a the key aspects of an environmental
+ * State is an interface which defines a the key aspects of an environmental
  * state. States must be able to be copied such that once they have been
  * copied if the equals(Object that) method was called it would return true.
  * The equals method must also be properly implemented so that two states may
@@ -13,7 +13,7 @@ package org.madesimple.small.environment;
  * library like the DiscreteQTable will not properly work.
  * </p>
  * <p>
- * Note. If you do have a continuous environment you could make the MdpState check
+ * Note. If you do have a continuous environment you could make the State check
  * a discretised version of the state in the equals and hashCode method but it
  * must be the same in both methods (i.e. if the two objects are equal then
  * their hash codes should be the same also).
@@ -32,7 +32,7 @@ public interface State {
      * Copy the state information of <em>that</em> into this state such that if {@link #equals(Object)} method was then
      * called between this and <em>that</em> it would return <code>true</code>.
      *
-     * @param that MdpState
+     * @param that State
      */
     void set(State that);
 

@@ -18,19 +18,19 @@ public class Hash {
     /**
      * Convert an array of integers into a single integer representation.
      *
-     * @param ints integer array
+     * @param integers integer array
      * @return integer representation
      */
-    public static int pair(int... ints) {
-        if (ints.length == 1) {
-            return ints[0];
+    public static int pair(int... integers) {
+        if (integers.length == 1) {
+            return integers[0];
         }
-        if (ints.length == 2) {
-            return pair(ints[0], ints[1]);
+        if (integers.length == 2) {
+            return pair(integers[0], integers[1]);
         } else {
-            int hash = pair(ints[0], ints[1]);
-            for (int i = 2; i < ints.length; i++) {
-                hash = pair(hash, ints[i]);
+            int hash = pair(integers[0], integers[1]);
+            for (int i = 2; i < integers.length; i++) {
+                hash = pair(hash, integers[i]);
             }
             return hash;
         }
@@ -39,12 +39,12 @@ public class Hash {
     /**
      * Convert an array of booleans into a single integer representation.
      *
-     * @param bools boolean array
+     * @param booleans boolean array
      * @return integer representation
      */
-    public static int hash(boolean... bools) {
+    public static int hash(boolean... booleans) {
         int hash = 0;
-        for (boolean b : bools) {
+        for (boolean b : booleans) {
             hash = (hash << 1) + (b ? 1 : 0);
         }
         return hash;
@@ -57,12 +57,12 @@ public class Hash {
      * @param <E>   Enum
      * @return integer representation
      */
-    public static <E extends Enum<E>> int hash(Enum<E>... enums) {
-        int[] ints = new int[enums.length];
+    public static <E extends Enum<E>> int hash(E... enums) {
+        int[] integers = new int[enums.length];
         for (int i = 0; i < enums.length; i++) {
-            ints[i] = enums[i].ordinal();
+            integers[i] = enums[i].ordinal();
         }
 
-        return pair(ints);
+        return pair(integers);
     }
 }
