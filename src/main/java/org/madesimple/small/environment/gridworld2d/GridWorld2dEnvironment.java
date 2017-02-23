@@ -1,6 +1,7 @@
 package org.madesimple.small.environment.gridworld2d;
 
 import org.madesimple.small.agent.Agent;
+import org.madesimple.small.environment.DiscreteEnvironment;
 import org.madesimple.small.environment.Environment;
 import org.madesimple.small.environment.State;
 import org.madesimple.small.environment.TurnBasedEnvironment;
@@ -25,7 +26,7 @@ import java.util.concurrent.ThreadLocalRandom;
  *
  * @author Peter Scopes (peter.scopes@gmail.com)
  */
-public class GridWorld2dEnvironment implements TurnBasedEnvironment {
+public class GridWorld2dEnvironment extends Observable implements TurnBasedEnvironment, DiscreteEnvironment {
 
     public static class Tuple extends Environment.Tuple {
         /**
@@ -92,51 +93,34 @@ public class GridWorld2dEnvironment implements TurnBasedEnvironment {
     protected int maxTurns;
     protected int requiredAgents;
 
-    protected Configuration     cfg;
     protected GridWorld2dLayout layout;
     protected Tuple[]           tuples;
     protected Map<Agent, Tuple> mappedTuples;
     protected Compass[]         actions;
     protected int               time;
     protected int               turn;
-//    protected Visualiser visualiser;
 
     public GridWorld2dEnvironment() {
     }
 
     @Override
     public void setConfiguration(Configuration cfg) {
-        this.cfg = cfg;
-    }
-
-    @Override
-    public void initialise() {
         // Set the actions
         actions = "cardinal".equals(cfg.getString("Environment.GridWorld2d.AvailableActions").toLowerCase()) ?
-                Compass.Cardinal.values() :
-                Compass.Ordinal.values();
+                  Compass.Cardinal.values() :
+                  Compass.Ordinal.values();
 
         // Get the layout
-        layout = fetchLayout();
+        layout = fetchLayout(cfg);
         mappedTuples = new HashMap<>();
+        updateTuples();
 
         // Initialise max turns
         maxTurns = cfg.getInteger("Environment.GridWorld2d.MaxTurns");
         requiredAgents = cfg.getInteger("Environment.GridWorld2d.NumAgents");
-
-        // Initialise the clock
-        time = 0;
-        turn = 0;
-
-        // Initialise the visualiser
-//        if (cfg.get('observer.visualise', false)) {
-//            if (visualiser == null) {
-//                visualiser = new GridWorld2dVisualiser();
-//            }
-//        }
     }
 
-    protected GridWorld2dLayout fetchLayout() {
+    protected GridWorld2dLayout fetchLayout(Configuration cfg) {
         try {
             GridWorld2dFileReader fr = new GridWorld2dFileReader();
             fr.parse(Paths.get(cfg.getString("Environment.GridWorld2d.LayoutFilePath")));
@@ -154,6 +138,17 @@ public class GridWorld2dEnvironment implements TurnBasedEnvironment {
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }
+    }
+
+    @Override
+    public void initialise() {
+        // Initialise the clock
+        time = 0;
+        turn = 0;
+
+        // Initialise the visualiser
+        setChanged();
+        notifyObservers(layout);
     }
 
     @Override
@@ -178,6 +173,10 @@ public class GridWorld2dEnvironment implements TurnBasedEnvironment {
         for (Tuple tuple : tuples) {
             tuple.agent.reset(this);
         }
+
+        // Initialise the visualiser
+        setChanged();
+        notifyObservers(null);
     }
 
     @Override
@@ -259,6 +258,10 @@ public class GridWorld2dEnvironment implements TurnBasedEnvironment {
             tuple.agent.receive(this, tuple.state, tuple.arrived ? rewardAtGoal : rewardTransition);
         }
 
+        // Update observers
+        setChanged();
+        notifyObservers(tuples[0].state);
+
         // Increment the clock
         time++;
         turn++;
@@ -275,6 +278,21 @@ public class GridWorld2dEnvironment implements TurnBasedEnvironment {
         }
 
         return null;
+    }
+
+    @Override
+    public int countBounds() {
+        return 2;
+    }
+
+    @Override
+    public int[] lowerBounds() {
+        return new int[] {0, 0};
+    }
+
+    @Override
+    public int[] upperBounds() {
+        return new int[] {layout.stateWidth, layout.stateHeight};
     }
 
     @Override

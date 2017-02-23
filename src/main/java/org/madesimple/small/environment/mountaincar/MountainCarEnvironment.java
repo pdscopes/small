@@ -7,6 +7,7 @@ import org.madesimple.small.environment.State;
 import org.madesimple.small.environment.TurnBasedEnvironment;
 import org.madesimple.small.utility.Configuration;
 
+import java.util.Observable;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -25,7 +26,7 @@ import java.util.concurrent.ThreadLocalRandom;
  *
  * @author Peter Scopes (peter.scopes@gmail.com)
  */
-public class MountainCarEnvironment implements TurnBasedEnvironment, ContinuousEnvironment {
+public class MountainCarEnvironment extends Observable implements TurnBasedEnvironment, ContinuousEnvironment {
 
     public static class Tuple extends Environment.Tuple {
         MountainCarState state;
@@ -142,6 +143,10 @@ public class MountainCarEnvironment implements TurnBasedEnvironment, ContinuousE
         // Initialise the clock
         time = 0;
         turn = 0;
+
+        // Reset visualiser
+        setChanged();
+        notifyObservers(null);
     }
 
     @Override
@@ -167,6 +172,10 @@ public class MountainCarEnvironment implements TurnBasedEnvironment, ContinuousE
 
         // reset the agent
         tuple.agent.reset(this);
+
+        // Reset visualiser
+        setChanged();
+        notifyObservers(null);
     }
 
     @Override
@@ -217,6 +226,10 @@ public class MountainCarEnvironment implements TurnBasedEnvironment, ContinuousE
             reward = rewardAtGoal;
         }
         tuple.agent.receive(this, tuple.state, reward);
+
+        // Inform visualiser
+        setChanged();
+        notifyObservers(tuple.state);
 
         // Increment the clock
         time++;
@@ -275,14 +288,14 @@ public class MountainCarEnvironment implements TurnBasedEnvironment, ContinuousE
         return Math.cos(HILL_PEAK_FREQUENCY * queryPosition);
     }
 
-    private void move(MountainCarState state, int action) {
+    public void move(MountainCarState state, int action) {
         double acceleration = ACCELERATION_FACTOR;
 
         double position = state.getPosition();
         double velocity = state.getVelocity();
 
         //Noise should be at most
-        double thisNoise = 2.0d * ACCELERATION_FACTOR * transitionNoise * (ThreadLocalRandom.current().nextDouble() - .5d);
+        double thisNoise = 2.0d * acceleration * transitionNoise * (ThreadLocalRandom.current().nextDouble() - .5d);
 
         velocity += (thisNoise + ((envActions_[action].value)) * (acceleration)) + getSlope(position) * (GRAVITY_FACTOR);
         if (velocity > MAX_VELOCITY) {

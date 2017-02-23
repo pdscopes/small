@@ -4,6 +4,7 @@ import org.madesimple.small.agent.Agent;
 import org.madesimple.small.environment.*;
 import org.madesimple.small.utility.Configuration;
 
+import java.util.Observable;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -17,7 +18,7 @@ import java.util.concurrent.ThreadLocalRandom;
  *
  * @author Peter Scopes (peter.scopes@gmail.com)
  */
-public class AcrobotEnvironment implements TurnBasedEnvironment, ContinuousEnvironment {
+public class AcrobotEnvironment extends Observable implements TurnBasedEnvironment, ContinuousEnvironment {
 
     public static class Tuple extends Environment.Tuple {
 
