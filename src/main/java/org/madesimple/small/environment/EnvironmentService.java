@@ -1,51 +1,42 @@
 package org.madesimple.small.environment;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashSet;
-import java.util.Scanner;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author Peter Scopes (peter.scopes@gmail.com)
  */
-public class EnvironmentService
-{
-    protected static Set<EnvironmentRegister> environmentRegisters;
+public class EnvironmentService {
+    private static Map<String, EnvironmentRegister> registerMap;
 
-    public static synchronized void register(Path availableList)
-    {
+    public static synchronized void register(Path availableList) throws Exception {
         if (!Files.isRegularFile(availableList) || !Files.isReadable(availableList)) {
             throw new IllegalArgumentException("Cannot locate readable file " + availableList);
         }
 
-        try (Scanner input = new Scanner(availableList.toFile())) {
-            while (input.hasNext()) {
-                String line = input.nextLine();
+        Scanner input = new Scanner(availableList.toFile());
+        while (input.hasNext()) {
+            String line = input.nextLine();
 
-                Object register = Class.forName(line).newInstance();
-                if (register instanceof EnvironmentRegister) {
-                    getEnvironmentRegisters().add((EnvironmentRegister) register);
-                }
-            }
+            EnvironmentRegister register = (EnvironmentRegister) Class.forName(line).newInstance();
+            getEnvironmentRegisters().put(register.getIdentifier(), register);
         }
-        catch (IOException e) {}
-        catch (Exception e) {}
     }
 
-    public static synchronized Set<EnvironmentRegister> collection()
-    {
+    public static synchronized EnvironmentRegister get(String identifier) {
+        return getEnvironmentRegisters().get(identifier);
+    }
+
+    public static synchronized Map<String, EnvironmentRegister> collection() {
         return getEnvironmentRegisters();
     }
 
-    protected static synchronized Set<EnvironmentRegister> getEnvironmentRegisters()
-    {
-        if(null == environmentRegisters)
-        {
-            environmentRegisters = new HashSet<>();
+    private static synchronized Map<String, EnvironmentRegister> getEnvironmentRegisters() {
+        if (null == registerMap) {
+            registerMap = new HashMap<>();
         }
 
-        return environmentRegisters;
+        return registerMap;
     }
 }
