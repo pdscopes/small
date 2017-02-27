@@ -130,8 +130,9 @@ public class GridWorld2dEnvironment extends Observable implements TurnBasedEnvir
             layout.stateHeight = fr.getStateHeight();
             layout.width = fr.getLayoutWidth();
             layout.height = fr.getLayoutHeight();
+            layout.raw = fr.getLayout();
             layout.map = fr.getLayout();
-            layout.parse();
+            layout.parse(fr.getProbabilities());
 
 
             return layout;
@@ -177,6 +178,8 @@ public class GridWorld2dEnvironment extends Observable implements TurnBasedEnvir
         // Initialise the visualiser
         setChanged();
         notifyObservers(null);
+        setChanged();
+        notifyObservers(tuples[0].state);
     }
 
     @Override

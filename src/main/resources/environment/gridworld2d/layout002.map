@@ -1,19 +1,19 @@
 ; Floor(.)
 ; Barrier(#)
-; Wall (| or -) (/ or \)
+; Wall (‡)
 ; Gate (x)
 ; One way (< or > or ^ or v)
 ; Start/Goal (S/G or [a-z]/[A-Z])
 
 [3,3]
 
-> - - -
->|a . b|
->
->|. . .|
-> x   x
->|A . B|
-> - - -
+>‡‡‡‡‡‡‡
+>‡a . b‡
+>‡     ‡
+>‡. . .‡
+>‡x   x‡
+>‡A . B‡
+>‡‡‡‡‡‡‡
 
 ; Gate probabilities
 x v0.01 ^0.0

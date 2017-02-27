@@ -147,6 +147,8 @@ public class MountainCarEnvironment extends Observable implements TurnBasedEnvir
         // Reset visualiser
         setChanged();
         notifyObservers(null);
+        setChanged();
+        notifyObservers(tuple.state);
     }
 
     @Override

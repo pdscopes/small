@@ -8,8 +8,7 @@ import java.util.*;
 public class GridWorld2dLayout {
     public static final char MAP_FLOOR         = '.';
     public static final char MAP_BARRIER       = '#';
-    public static final char MAP_WALL_HOR      = '|';
-    public static final char MAP_WALL_VER      = '-';
+    public static final char MAP_WALL          = '‡';
     public static final char MAP_GATE          = 'x';
     public static final char MAP_ONE_WAY_WEST  = '<';
     public static final char MAP_ONE_WAY_EAST  = '>';
@@ -19,15 +18,12 @@ public class GridWorld2dLayout {
     public List<GridWorld2dEnvironment.Tuple> availableTuples;
     public Set<GridWorld2dState>              goals;
     public char[][]                           map;
+    public char[][]                           raw;
     public double[][][]                       probabilities;
     public int                                height;
     public int                                width;
     public int                                stateHeight;
     public int                                stateWidth;
-
-    public void parse() {
-        parse(new ArrayList<>());
-    }
 
     public void parse(List<Map<Character, Double>> probabilities) {
 
@@ -90,8 +86,8 @@ public class GridWorld2dLayout {
         }
 
         // Remove all traces of the start and goal positions
-        for (int y = 1; y < height; y++) {
-            for (int x = 1; x < width; x++) {
+        for (int y = 1; y < height; y += 2) {
+            for (int x = 1; x < width; x += 2) {
                 if (Character.isAlphabetic(map[y][x])) {
                     map[y][x] = MAP_FLOOR;
                 }
@@ -102,7 +98,7 @@ public class GridWorld2dLayout {
     }
 
     protected void initialiseProbabilities(List<Map<Character, Double>> probabilities) {
-        this.probabilities = new double[height / 2][width / 2][Compass.Cardinal.values().length];
+        this.probabilities = new double[stateHeight][stateWidth][Compass.Cardinal.values().length];
         GridWorld2dState tmp = new GridWorld2dState(0, 0);
         for (int y = 1, dy = 0, numGate = 0; y < height; y += 2, dy++) {
             for (int x = 1, dx = 0; x < width; x += 2, dx++) {
@@ -149,15 +145,8 @@ public class GridWorld2dLayout {
                                         prob = 0.0d;
                                     }
                                     break;
-                                case MAP_WALL_HOR:
-                                    if (Compass.Cardinal.values()[a] == Compass.Cardinal.EAST || Compass.Cardinal.values()[a] == Compass.Cardinal.WEST) {
-                                        prob = 0.0d;
-                                    }
-                                    break;
-                                case MAP_WALL_VER:
-                                    if (Compass.Cardinal.values()[a] == Compass.Cardinal.NORTH || Compass.Cardinal.values()[a] == Compass.Cardinal.SOUTH) {
-                                        prob = 0.0d;
-                                    }
+                                case MAP_WALL:
+                                    prob = 0.0d;
                                     break;
                             }
                             GridWorld2dState.perform(tmp, Compass.Cardinal.values()[a], 1);

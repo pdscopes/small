@@ -74,19 +74,19 @@ public class FadeAway2dVisualiser extends JLayeredPane implements Visualiser {
             if (renderGrid) {
 
                 // Do some calculations
-                int    width   = this.getWidth();
-                int    height  = this.getHeight();
-                int    size    = Math.min(width, height);
+                double width   = this.getWidth();
+                double height  = this.getHeight();
+                double size    = Math.min(width, height);
                 double xSquare = size / xDivisions;
                 double ySquare = size / yDivisions;
-                int    x       = (width - size) / 2;
-                int    y       = (height - size) / 2;
+                double x       = (width - size) / 2;
+                double y       = (height - size) / 2;
 
 
                 g.setColor(new Color(1.0f, 1.0f, 1.0f, 0.50f));
 
                 // Draw outline
-                g.drawRect(x, y, size - 1, size - 1);
+                g.drawRect((int) x, (int) y, (int) (size - 1), (int) (size - 1));
 
                 // Draw grid
                 for (int i = 1; i < xDivisions; i++) {
@@ -111,6 +111,7 @@ public class FadeAway2dVisualiser extends JLayeredPane implements Visualiser {
 
     static class FadeAwayPane extends JPanel implements Configurable, Observer {
 
+        private int         total;
         private int[][]     counters;
         private Queue<Pair> queue;
         private int         xDivisions;
@@ -120,6 +121,7 @@ public class FadeAway2dVisualiser extends JLayeredPane implements Visualiser {
 
             this.xDivisions = xDivisions;
             this.yDivisions = yDivisions;
+            total = 0;
             counters = new int[yDivisions][xDivisions];
             queue = new LinkedList<>();
             this.setOpaque(false);
@@ -139,6 +141,7 @@ public class FadeAway2dVisualiser extends JLayeredPane implements Visualiser {
         public synchronized void update(Observable o, Object arg) {
 
             if (o instanceof Environment && arg == null) {
+                total = 0;
                 counters = new int[yDivisions][xDivisions];
                 queue.clear();
             }
@@ -154,10 +157,12 @@ public class FadeAway2dVisualiser extends JLayeredPane implements Visualiser {
         private void add(Pair pair) {
             queue.add(pair);
             counters[pair.y][pair.x]++;
+            total++;
 
             if (queue.size() > DEFAULT_MAXSIZE) {
                 pair = queue.remove();
                 counters[pair.y][pair.x] = Math.max(0, counters[pair.y][pair.x] - 1);
+                total--;
             }
 
             invalidate();

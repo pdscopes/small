@@ -16,7 +16,7 @@ public class GridWorld2dFileReader {
     protected int      layoutHeight;
     protected char[][] layout;
 
-    protected Map<Character, Map<Character, Double>> probabilities;
+    protected List<Map<Character, Double>> probabilities;
 
     public GridWorld2dFileReader() {
         reset();
@@ -44,7 +44,7 @@ public class GridWorld2dFileReader {
             }
 
             // Parse the line
-            parseLine(line.charAt(0), line.substring(1).trim());
+            parseLine(line.charAt(0), line.substring(1));
         }
     }
 
@@ -54,7 +54,7 @@ public class GridWorld2dFileReader {
         stateHeight = 0;
         layoutWidth = 0;
         layoutHeight = 0;
-        probabilities = new HashMap<>();
+        probabilities = new ArrayList<>();
     }
 
     protected void parseLayoutSize(String line) {
@@ -90,18 +90,22 @@ public class GridWorld2dFileReader {
 
             // Store gate probabilities
             case 'x':
-                String[] parts = line.split(" ");
+                String[] parts = line.trim().split(" ");
                 Map<Character, Double> probMap = new HashMap<>();
                 for (String part : parts) {
                     probMap.put(part.charAt(0), Double.parseDouble(part.substring(1)));
                 }
-                probabilities.put('x', probMap);
+                probabilities.add(probMap);
                 break;
         }
     }
 
     public char[][] getLayout() {
-        return layout;
+        char[][] copy = new char[layoutHeight][layoutWidth];
+        for (int i=0; i < layoutHeight; i++) {
+            System.arraycopy(layout[i], 0, copy[i], 0, layoutWidth);
+        }
+        return copy;
     }
 
     public int getStateWidth() {
@@ -120,7 +124,7 @@ public class GridWorld2dFileReader {
         return layoutHeight;
     }
 
-    public Map<Character, Map<Character, Double>> getProbabilities() {
+    public List<Map<Character, Double>> getProbabilities() {
         return probabilities;
     }
 }
